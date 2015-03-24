@@ -44,7 +44,8 @@ def apply_features(feat_config, data, out_folder, train):
         outf = os.path.join(out_folder, "features.test")
     for func in load_functions(feat_config):
         result.append(map(func, data))
-    if len(result) == 0: return
+    if len(result) == 0:
+        return
     with open(outf, 'a') as f:
         for i in range(len(result[0])):
             line = ' '.join([col[i] for col in result])
@@ -91,9 +92,12 @@ def evaluate(gold, out_folder):
     correct = 0
     assert len(gold_tags) == len(hypo_tags)
     for i in range(len(gold_tags)):
-        if gold_tags[i] != 'no_rel': gold_total += 1
-        if hypo_tags[i] != 'no_rel': hypo_total += 1
-        if gold_tags[i] != 'no_rel' and hypo_tags[i] == gold_tags[i]: correct += 1
+        if gold_tags[i] != 'no_rel':
+            gold_total += 1
+        if hypo_tags[i] != 'no_rel':
+            hypo_total += 1
+        if gold_tags[i] != 'no_rel' and hypo_tags[i] == gold_tags[i]:
+            correct += 1
     if hypo_total == 0:
         precision = 0.0
     else:
@@ -117,14 +121,18 @@ def main():
     if len(sys.argv) == 1:
         print h
         exit()
-    parser = argparse.ArgumentParser(description="Run through a coreference resolution pipeline")
+    parser = argparse.ArgumentParser(
+        description="Run through a coreference resolution pipeline")
     parser.add_argument('--train', dest='trainset', help="path to the training data",
                         default='./data/rel-trainset.gold')
-    parser.add_argument('--test', dest='testset', help="path to the test data", default='./data/rel-devset.raw')
+    parser.add_argument(
+        '--test', dest='testset', help="path to the test data", default='./data/rel-devset.raw')
     parser.add_argument('--gold', dest='testgold', help="path to the gold standard of the test data",
                         default='./data/rel-devset.gold')
-    parser.add_argument('--features', dest='feature_config', help="path to the feature config", default='A')
-    parser.add_argument('--task', dest='out_folder', help="specify a folder for the output and logs")
+    parser.add_argument('--features', dest='feature_config',
+                        help="path to the feature config", default='A')
+    parser.add_argument(
+        '--task', dest='out_folder', help="specify a folder for the output and logs")
     args = parser.parse_args()
     if os.path.isdir(args.out_folder):
         print "ERROR: task(out_folder) already exists"
@@ -138,7 +146,8 @@ def main():
     start_eval = time()
     precision, recall, f = evaluate(args.testgold, args.out_folder)
     time_consumption = "Training: %.2f sec\nDecoding: %.2f sec" % \
-                       ((start_decode - start_train), (start_eval - start_decode))
+                       ((start_decode - start_train),
+                        (start_eval - start_decode))
     evaluation = "Precision: %.2f\nRecall: %.2f\nF1: %.2f" % \
                  ((precision * 100), (recall * 100), (f * 100))
     if args.feature_config == 'A':

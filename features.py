@@ -4,15 +4,16 @@
 from document import *
 from util import *
 
-########## RESOURCES ##########
+# ######### RESOURCES ##########
 documents = load_documents()
 
 ###############################
 
-########## Feature functions ##########
+# ######### Feature functions ##########
 # Each feature function takes a single MentionPair instance
 # and return its features as a string.
 # Function name should always ends with `_features`
+
 
 def location_features(mentionpair):
     return "SAME_SENT=" + \

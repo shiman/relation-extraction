@@ -8,7 +8,7 @@ class Document(object):
     Empty lines are not kept. Document instances are supposed to be loaded as global
     vairables in `features.py` to be used by feature functions.
 
-    >>> doc = Document("APW20001001.2021.0521.head.rel.tokenized.raw")
+    >>> doc = Document("APW20001001.2021.0521")
     >>> print doc.tagged_sents[1]
     Egypt-Assad_RB
     >>> tree = ParentedTree.fromstring("(S1 (NP (NN Egypt-Assad)))")
@@ -19,8 +19,8 @@ class Document(object):
     def __init__(self, filename, postagged='./data/postagged-files',
                  parsed='./data/parsed-files'):
         self.filename = filename
-        postagged_file = os.path.join(postagged, filename+'.tag')
-        parsed_file = os.path.join(parsed, filename+'.parse')
+        postagged_file = os.path.join(postagged, filename+'.head.rel.tokenized.raw.tag')
+        parsed_file = os.path.join(parsed, filename+'.head.rel.tokenized.raw.parse')
         self.tagged_sents = [x.strip() for x in open(postagged_file) if x.strip()]
         self.parsed_sents = [ParentedTree.fromstring(x) for x in open(parsed_file) if x.strip()]
         assert len(self.tagged_sents) == len(self.parsed_sents)

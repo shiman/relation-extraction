@@ -20,7 +20,7 @@ def load_documents(postagged='./data/postagged-files',
     d = dict()
     for filename in raw_list:
         root_name, _ = os.path.splitext(filename)
-        d[root_name] = Document(root_name, postagged, parsed)
+        d[root_name[:21]] = Document(root_name, postagged, parsed)
     return d
 
 

@@ -19,8 +19,8 @@ class Document(object):
     def __init__(self, filename, postagged='./data/postagged-files',
                  parsed='./data/parsed-files'):
         self.filename = filename
-        postagged_file = os.path.join(postagged, filename+'.head.rel.tokenized.raw.tag')
-        parsed_file = os.path.join(parsed, filename+'.head.rel.tokenized.raw.parse')
+        postagged_file = os.path.join(postagged, filename+'.tag')
+        parsed_file = os.path.join(parsed, filename+'.parse')
         self.tagged_sents = [x.strip() for x in open(postagged_file) if x.strip()]
         self.parsed_sents = [ParentedTree.fromstring(x) for x in open(parsed_file) if x.strip()]
         assert len(self.tagged_sents) == len(self.parsed_sents)
@@ -53,6 +53,14 @@ class Mention(object):
         postagged_tokens = documents[self.filename].tagged_sents[self.sent_index]
         postags = [postagged_tokens[i].split('_')[-1] for i in self.indices]
         return postags
+
+    def get_sentence_tokens(self, documents):
+        '''
+        Get all the tokens of the sentence where the mention occurrs
+        :param documents: preloaded resources
+        '''
+        postagged_tokens = documents[self.filename].tagged_sents[self.sent_index]
+        return [token.split('_')[0] for token in postagged_tokens.split()]
 
     def get_tree_donimator(self, documents):
         """

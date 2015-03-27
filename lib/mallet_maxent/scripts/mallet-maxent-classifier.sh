@@ -7,6 +7,8 @@ BASEDIR="$(dirname $_script)"/..
 MALLET_HOME=$BASEDIR/../mallet
 MALLET_LIB=$MALLET_HOME/lib
 
+export JAVA=/usr/bin/java
+export JAVAC=/usr/bin/javac
 export CLASSPATH=$BASEDIR/classifier/classes:$MALLET_HOME/class:$MALLET_LIB/mallet-deps.jar
 
 if [ "$1" = make ] 

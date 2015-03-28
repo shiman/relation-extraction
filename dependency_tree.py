@@ -1,5 +1,12 @@
+from itertools import takewhile
+
+
 class DepTree(object):
     """
+    A dependency tree object working with stanford parser
+    tree format
+    Note that this implementation assumes that each child
+    has only one parent
     >>> s = '''poss(dog-2, My-1)
     ... nsubj(likes-4, dog-2)
     ... advmod(likes-4, also-3)
@@ -14,7 +21,20 @@ class DepTree(object):
     likes-4, also-3
     likes-4, eating-5
     eating-5, sausage-6
+    >>> dog = tree.get(1)
+    >>> print dog.token
+    dog
+    >>> dog.left()
+    [DepTree<My>]
+    >>> dog.right()
+    []
+    >>> dog.parent
+    DepTree<likes>
+    >>> sausage = tree.get(5)
+    >>> dog.lca(sausage)
+    DepTree<likes>
     """
+
     def __init__(self, token, index=None):
         self.token = token
         self._children = list()
@@ -26,14 +46,36 @@ class DepTree(object):
 
     @property
     def index(self):
+        """the word index, starting from zero,
+        which means that the original zero index (ROOT) is
+        excluded here"""
         if self.is_root():
             return None
         return self._index - 1
 
+    def get(self, index):
+        """Get the subtree of a specific word index"""
+        for subtree in self.subtrees():
+            if subtree.index == index:
+                return subtree
+        return None
+
+    def subtrees(self):
+        """Recursively traverse all subtrees"""
+        yield self
+        for child in self.children:
+            for subtree in child.subtrees():
+                yield subtree
+
+    def tokens(self):
+        return ' '.join(x.token for x in self.subtrees())
+
     def left(self):
+        """Subtrees left-arced to this tree"""
         return [x for x in self.children if x.index < self.index]
 
     def right(self):
+        """Subtrees right-arced to this tree"""
         return [x for x in self.children if x.index > self.index]
 
     @property
@@ -58,6 +100,35 @@ class DepTree(object):
         self._children.append(subtree)
         subtree.parent = self
 
+    def __eq__(self, other):
+        if not isinstance(other, DepTree):
+            return False
+        return self.token == other.token and self.index == other.index
+
+    def __hash__(self):
+        return hash((self.token, self.index))
+
+    def lca(self, t):
+        """
+        get the lowest common ancestor, assuming `self` and `t`
+        are from the same sentence
+        :param t: another DepTree instance
+        """
+        assert isinstance(t, DepTree)
+        if self == t:
+            return t
+        path_to_root = set()
+        cur = self
+        while not cur.is_root():
+            path_to_root.add(cur)
+            cur = cur.parent
+        cur = t
+        while not cur.is_root():
+            if cur.parent in path_to_root:
+                return cur.parent
+            cur = cur.parent
+        return cur
+
     def _get_pairs(self):
         pairs = list()
         for c in self.children:
@@ -66,6 +137,9 @@ class DepTree(object):
             pairs.append(parent + ', ' + child)
             pairs += c._get_pairs()
         return pairs
+
+    def __repr__(self):
+        return "DepTree<{0}>".format(self.token)
 
     def __str__(self):
         pairs = self._get_pairs()
@@ -78,13 +152,17 @@ class DepTree(object):
         """
         leaves = dict()
         for line in s.strip().split('\n'):
-            parent, child = line[line.find('(')+1: -1].split(', ')
+            parent, child = line[line.find('(') + 1: -1].split(', ')
             if parent not in leaves:
-                parent_token, parent_index = parent.split('-')
+                _parts = parent.split('-')
+                parent_token = '-'.join(_parts[:-1])
+                parent_index = _parts[-1]
                 parent_node = cls(parent_token, index=int(parent_index))
                 leaves[parent] = parent_node
             if child not in leaves:
-                child_token, child_index = child.split('-')
+                _parts = child.split('-')
+                child_token = '-'.join(_parts[:-1])
+                child_index = _parts[-1]
                 child_node = cls(child_token, index=int(child_index))
                 leaves[child] = child_node
             leaves[parent].add_child(leaves[child])
@@ -94,3 +172,13 @@ class DepTree(object):
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
+    # s = '''poss(dog-2, My-1)
+    #     nsubj(likes-4, dog-2)
+    #     advmod(likes-4, also-3)
+    #     root(ROOT-0, likes-4)
+    #     xcomp(likes-4, eating-5)
+    #     dobj(eating-5, sausage-6)'''
+    # tree = DepTree.fromstring(s)
+    # dog = tree.get(1)
+    # sausage = tree.get(5)
+    # dog.lca(sausage)

@@ -65,7 +65,7 @@ class DepTree(object):
                 yield subtree
 
     def tokens(self):
-        return ' '.join(x.token for x in self.subtrees())
+        return [x.token for x in self.subtrees()]
 
     def left(self):
         """Subtrees left-arced to this tree"""
@@ -120,9 +120,9 @@ class DepTree(object):
             path_to_root.add(cur)
             cur = cur.parent
         cur = t
-        while not cur.is_root():
-            if cur.parent in path_to_root:
-                return cur.parent
+        while cur is not None:
+            if cur in path_to_root:
+                return cur
             cur = cur.parent
         return cur
 

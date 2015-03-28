@@ -7,7 +7,7 @@ class Document(object):
     """
     A document, representing an individual news file (a list of sentences).
     Empty lines are not kept. Document instances are supposed to be loaded as global
-    vairables in `features.py` to be used by feature functions.
+    variables in `features.py` to be used by feature functions.
 
     >>> doc = Document("APW20001001.2021.0521")
     >>> print doc.tagged_sents[1]
@@ -26,7 +26,9 @@ class Document(object):
         dep_file = os.path.join(dependency, filename+'.parse.dep')
         self.tagged_sents = [x.strip() for x in open(postagged_file) if x.strip()]
         self.parsed_sents = [ParentedTree.fromstring(x) for x in open(parsed_file) if x.strip()]
-        self.dep_sents = [DepTree.fromstring(x) for x in open(dep_file) if x.strip()]
+        self.dep_sents = [DepTree.fromstring(x)
+                          for x in open(dep_file).read().strip().split('\n\n')
+                          if x.strip()]
         assert len(self.tagged_sents) == len(self.parsed_sents)
 
     def __len__(self):
@@ -66,7 +68,7 @@ class Mention(object):
         postagged_tokens = documents[self.filename].tagged_sents[self.sent_index]
         return ['_'.join(token.split('_')[:-1]) for token in postagged_tokens.split()]
 
-    def get_tree_donimator(self, documents):
+    def get_tree_dominator(self, documents):
         """
         Get the lowest tree node that dominates this mention
         """
@@ -75,14 +77,13 @@ class Mention(object):
         subtree = tree[subtree_position]
         if not isinstance(subtree, ParentedTree):
             return tree[subtree_position[:-1]]
-        return tree
+        return subtree
 
-    #TODO not tested yet
     def get_dep_subtree(self, documents):
         """
-        Get the subtree of this mention
+        Get the dependency subtree of this mention
         """
-        sentence = documents.dep_sents[self.sent_index]
+        sentence = documents[self.filename].dep_sents[self.sent_index]
         start = sentence.get(self.indices[0])
         end = sentence.get(self.indices[-1])
         return start.lca(end)
@@ -130,7 +131,6 @@ class MentionPair(object):
                              int(tokens[7]), filename, tokens[10])
         self.filename = filename
 
-    #TODO not tested yet
     def lca(self, documents):
         left = self.left.get_dep_subtree(documents)
         right = self.right.get_dep_subtree(documents)

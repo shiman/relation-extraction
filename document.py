@@ -1,5 +1,6 @@
 import os
 from nltk import ParentedTree
+from dependency_tree import DepTree
 
 
 class Document(object):
@@ -17,12 +18,15 @@ class Document(object):
     """
 
     def __init__(self, filename, postagged='./data/postagged-files',
-                 parsed='./data/parsed-files'):
+                 parsed='./data/parsed-files',
+                 dependency='./data/dep-files'):
         self.filename = filename
         postagged_file = os.path.join(postagged, filename+'.tag')
         parsed_file = os.path.join(parsed, filename+'.parse')
+        dep_file = os.path.join(dependency, filename+'.parse.dep')
         self.tagged_sents = [x.strip() for x in open(postagged_file) if x.strip()]
         self.parsed_sents = [ParentedTree.fromstring(x) for x in open(parsed_file) if x.strip()]
+        self.dep_sents = [DepTree.fromstring(x) for x in open(dep_file) if x.strip()]
         assert len(self.tagged_sents) == len(self.parsed_sents)
 
     def __len__(self):
@@ -60,7 +64,7 @@ class Mention(object):
         :param documents: preloaded resources
         '''
         postagged_tokens = documents[self.filename].tagged_sents[self.sent_index]
-        return [token.split('_')[0] for token in postagged_tokens.split()]
+        return ['_'.join(token.split('_')[:-1]) for token in postagged_tokens.split()]
 
     def get_tree_donimator(self, documents):
         """
@@ -72,6 +76,16 @@ class Mention(object):
         if not isinstance(subtree, ParentedTree):
             return tree[subtree_position[:-1]]
         return tree
+
+    #TODO not tested yet
+    def get_dep_subtree(self, documents):
+        """
+        Get the subtree of this mention
+        """
+        sentence = documents.dep_sents[self.sent_index]
+        start = sentence.get(self.indices[0])
+        end = sentence.get(self.indices[-1])
+        return start.lca(end)
 
     def __str__(self):
         return "sentence_index: %d\ntoken_indices: %s\nNE_type: %s\nstr: %s" % \
@@ -115,6 +129,12 @@ class MentionPair(object):
         self.right = Mention(tokens[12], int(tokens[8]), int(tokens[9]),
                              int(tokens[7]), filename, tokens[10])
         self.filename = filename
+
+    #TODO not tested yet
+    def lca(self, documents):
+        left = self.left.get_dep_subtree(documents)
+        right = self.right.get_dep_subtree(documents)
+        return left.lca(right)
 
 
 if __name__ == '__main__':

@@ -1,6 +1,3 @@
-from itertools import takewhile
-
-
 class DepTree(object):
     """
     A dependency tree object working with stanford parser
@@ -172,13 +169,3 @@ class DepTree(object):
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
-    # s = '''poss(dog-2, My-1)
-    #     nsubj(likes-4, dog-2)
-    #     advmod(likes-4, also-3)
-    #     root(ROOT-0, likes-4)
-    #     xcomp(likes-4, eating-5)
-    #     dobj(eating-5, sausage-6)'''
-    # tree = DepTree.fromstring(s)
-    # dog = tree.get(1)
-    # sausage = tree.get(5)
-    # dog.lca(sausage)

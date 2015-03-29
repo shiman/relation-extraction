@@ -96,7 +96,7 @@ class Mention(object):
 
     def get_next_pos(self, documents):
         """
-        Get the POS tag of the previous token in the sentence
+        Get the POS tag of the next token in the sentence
         :param documents: preloaded resources
         """
         postagged_tokens = documents[self.filename].tagged_sents[self.sent_index].split()

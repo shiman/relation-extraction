@@ -65,7 +65,7 @@ def kernel_entity(x,y):
 
 def main():
     trainset = 'data/rel-trainset.gold'
-    config_file = 'feature.config'
+    config_file = 'feature.txt'
     path_train = '20150328/feature.train'
     kernel_name = 'entity'
     feature_file_train = path_train + '.' + kernel_name

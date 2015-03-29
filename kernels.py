@@ -130,21 +130,19 @@ def main():
         exit()
     else:
         os.makedirs(args.out_folder)
+    
     start_train = time()
-
     kernel_name = 'entity'
-
     kernel_features(args.trainset, args.feature_config, kernel_name,
                     args.out_folder+'/feature.train')
-
     X_train = convert_features(load_features(args.out_folder+'/feature.train'))
     y_train = load_labels(args.trainset)
     # entity kernel
-    classifier = svm.SVC(kernel=kernel_entity)
-    # I put 5000 here because I encounter MemoryError on my computer
+    #classifier = svm.SVC(kernel=kernel_entity)  # potential MemoryError
+    classifier = svm.SVC(kernel='linear')
     classifier.fit(X_train, y_train)
+    
     devset = 'data/rel-devset.gold'
-
     feature_file_dev = args.out_folder+'/feature.dev'
     kernel_features(devset, args.feature_config, kernel_name,
                     feature_file_dev)

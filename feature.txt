@@ -1,4 +1,4 @@
-between_words
+# between_words
 entity_type_e1
 entity_type_e2
 entity_token_dist

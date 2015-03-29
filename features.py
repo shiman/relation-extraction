@@ -27,33 +27,39 @@ def between_words(mentionpair):
     right_index = mentionpair.right.indices[0]
     sentence_tokens = mentionpair.left.get_sentence_tokens(documents)
     return "BETWEEN_WORD={}".format('_'.join(sentence_tokens[left_index: right_index]))
-    
+
 # FEATURES - KERNEL - ENTITY
-def entity_type_e1(rel):
+
+
+def entity_type_e1(mentionpair):
     """
     -> entity type of the first entity mention
     """
-    return "type_e1=" + rel.antecedent.netype
+    return "type_e1=" + mentionpair.left.netype
 
-def entity_type_e2(rel):
+
+def entity_type_e2(mentionpair):
     """
     -> entity type of the second entity mention
     """
-    return "type_e2=" + rel.anaphor.netype
+    return "type_e2=" + mentionpair.right.netype
 
-def entity_token_dist(rel):
+
+def entity_token_dist(mentionpair):
     """
     -> number of tokens between two mentions
     """
-    token_dist = rel.anaphor.indices[0] - \
-                 rel.antecedent.indices[-1]
-    if token_dist<3:
+    token_dist = mentionpair.right.indices[0] - \
+        mentionpair.left.indices[-1] + 1
+    if token_dist < 3:
         return "token_dist=" + str(token_dist)
     else:
-        return  "token_dist=n"
+        return "token_dist=n"
 
 # FEATURES - KERNEL - TREE - SYNTACTIC
-def syntactic_pt(rel):
+
+
+def syntactic_pt(mentionpair):
     """
     -> number of common sub-trees of Path-enclosed Tree
     """

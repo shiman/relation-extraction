@@ -26,8 +26,9 @@ class Document(object):
         dep_file = os.path.join(dependency, filename+'.parse.dep')
         self.tagged_sents = [x.strip() for x in open(postagged_file) if x.strip()]
         self.parsed_sents = [ParentedTree.fromstring(x) for x in open(parsed_file) if x.strip()]
+        depsents = open(dep_file).read()
         self.dep_sents = [DepTree.fromstring(x)
-                          for x in open(dep_file).read().strip().split('\n\n')
+                          for x in open(dep_file).read().strip().split('\n\r\n')
                           if x.strip()]
         assert len(self.tagged_sents) == len(self.parsed_sents)
 

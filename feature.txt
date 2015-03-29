@@ -1,4 +1,17 @@
 # between_words
+#entity_title_e1
+entity_title_e2
+entity_alpha_e1
+#entity_alpha_e2
 entity_type_e1
 entity_type_e2
+entity_pos_e1
+entity_pos_e2
+entity_npos_e1
+entity_ppos_e2
 entity_token_dist
+#entity_between_possessive
+#entity_between_preposition
+entity_premod
+entity_formulaic
+#entity_verbal

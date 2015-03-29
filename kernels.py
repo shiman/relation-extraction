@@ -103,7 +103,7 @@ def kernel_entity(x, y):
 
 def main():
     h = "USAGE: \
-         ./pipeline.py --train data/coref-trainset.gold \
+         ./kernels.py --train data/coref-trainset.gold \
                    --test data/coref-devset.notag \
                    --gold data/coref-devset.gold \
                    --feature feature.txt \
@@ -167,8 +167,13 @@ def main():
     #          (y_dev, predicted)))
 
     # print("Confusion matrix:\n%s" % metrics.
-    #       confusion_matrix(y_dev, predicted))
-
+    #       confusion_matrix(y_dev, predicted, y_dev))
+    with open(os.path.join(args.out_folder, 'hype'), 'w') as hypotheses:
+        for guess, gold in zip(predicted, y_dev):
+            if guess != gold:
+                hypotheses.write(gold + '   --------> ' + guess+'\n')
+            else:
+                hypotheses.write(gold + '\n')
     if args.feature_config == 'feature.txt':
         feat_log = "All feature functions applied"
     else:

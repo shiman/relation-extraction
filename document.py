@@ -182,7 +182,7 @@ class MentionPair(object):
         
     def between_sequence(self,documents):
         """ get tagged sentence fragment between two mention """
-        postagged_tokens = documents[self.filename].tagged_sents[self.antecedent.sent_index].split()
+        postagged_tokens = documents[self.filename].tagged_sents[self.left.sent_index].split()
         return postagged_tokens[self.left.indices[-1]+1:self.right.indices[0]]
 
     def between_tokens(self,documents):
@@ -193,7 +193,7 @@ class MentionPair(object):
     def between_tags(self,documents):
         """ get POS tags between two mention """
         for postagged_token in self.between_sequence(documents):
-            yield tagged_token.split('_')[1]
+            yield postagged_token.split('_')[1]
 
 if __name__ == '__main__':
     import doctest

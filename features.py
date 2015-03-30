@@ -3,6 +3,7 @@
 
 from document import *
 from util import *
+import re
 
 # ######### RESOURCES ##########
 documents = load_documents()

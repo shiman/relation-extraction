@@ -176,8 +176,11 @@ def last_between(mentionpair):
 
 def other_between(mentionpair):
     between = _get_between_words(mentionpair)
+    # print between
     if len(between)>2:
-        return "OTHER_BETWEEN={}".format('_'.join(between[0:-1]))
+        return "OTHER_BETWEEN={}".format('_'.join(between[1:-1]))
+    else:
+        return "OTHER_BETWEEN=NA"
 
 def _right_is_subset_left(mentionpair):
     right_string = set(mentionpair.right.string.lower().split('_'))
@@ -190,54 +193,32 @@ def _left_is_subset_right(mentionpair):
     return left_string.issubset(right_string)
 
 def netype_plus_right_overlap(mentionpair):
-    return combo_type(mentionpair)+"_"+str(_right_is_subset_left(mentionpair))
+    combo = [mentionpair.left.netype, mentionpair.right.netype]
+    return "RIGHT_OVERLAP="+'_'.join(combo)+'_'+str(_right_is_subset_left(mentionpair))
 
 def netype_plus_left_overlap(mentionpair):
-    return combo_type(mentionpair)+"_"+str(_left_is_subset_right(mentionpair))
+    combo = [mentionpair.left.netype, mentionpair.right.netype]
+    return "LEFT_OVERLAP="+'_'.join(combo)+'_'+str(_left_is_subset_right(mentionpair))
 
+def is_overlap(mentionpair):
+    combo = combo = [mentionpair.left.netype, mentionpair.right.netype]
+    return "OVERLAP="+"|".join(combo)+str(_right_is_subset_left(mentionpair) or _left_is_subset_right(mentionpair))
 #TODO
+
 def combo_mention_level(mentionpair):
     """combination of mention levels"""
     right_pos = mentionpair.right.get_postag(documents)
     left_pos = mentionpair.left.get_postag(documents)
     
-    if any(tag.startswith("NNP") for tag in right_pos):
-        if any(tag.startswith("NNP") for tag in left_pos):
-            return "MENTION_LEVEL=NNP|NNP"
-        elif any(tag.startswith("PR") for tag in left_pos):
-            return "MENTION_LEVEL=NNP|PRP"
-        elif any(tag.startswith('NN') for tag in left_pos):
-            return "MENTION_LEVEL=NNP|NN"
-        else:
-            return "MENTION_LEVEL=NNP|NA"
-    elif any(tag.startswith("PR") for tag in right_pos):
-        if any(tag.startswith("NNP") for tag in left_pos):
-            return "MENTION_LEVEL=PRP|NNP"
-        elif any(tag.startswith("PR") for tag in left_pos):
-            return "MENTION_LEVEL=PRP|PRP"
-        elif any(tag.startswith('NN') for tag in left_pos):
-            return "MENTION_LEVEL=PRP|NN"
-        else:
-            return "MENTION_LEVEL=PRP|NA"
-    elif any(tag.startswith('NN') for tag in right_pos):
-        if any(tag.startswith("NNP") for tag in left_pos):
-            return "MENTION_LEVEL=NN|NNP"
-        elif any(tag.startswith("PR") for tag in left_pos):
-            return "MENTION_LEVEL=NN|PRP"
-        elif any(tag.startswith('NN') for tag in left_pos):
-            return "MENTION_LEVEL=NN|NN"
-        else:
-            return "MENTION_LEVEL=NN|NA"
-    else:
-        if any(tag.startswith("NNP") for tag in left_pos):
-            return "MENTION_LEVEL=NA|NNP"
-        elif any(tag.startswith("PR") for tag in left_pos):
-            return "MENTION_LEVEL=NA|PRP"
-        elif any(tag.startswith('NN') for tag in left_pos):
-            return "MENTION_LEVEL=NA|NN"
-        else:
-            return "MENTION_LEVEL=NA|NA"
+    if any(tag.startswith('NNP') for tag in right_pos) and any(tag.startswith('NNP') for tag in left_pos):
+        return "MENTION_LEVEL_MATCH=NNP"
 
+    elif any(tag.startswith('PR') for tag in right_pos) and any(tag.startswith('PR') for tag in left_pos):
+        return "MENTION_LEVEL_MATCH=PRP"
+    elif any(tag.startswith('NN') for tag in right_pos) and any(tag.startswith('NN') for tag in left_pos):
+        return "MENTION_LEVEL_MATCH=NN"
+    else:
+        return "MENTION_LEVEL_MATCH=NA"
 
 def combo_words(mentionpair):
     """combo of mentions strings"""

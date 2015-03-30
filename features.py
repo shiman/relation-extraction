@@ -197,7 +197,46 @@ def netype_plus_left_overlap(mentionpair):
 #TODO
 def combo_mention_level(mentionpair):
     """combination of mention levels"""
-    pass
+    right_pos = mentionpair.right.get_postag(documents)
+    left_pos = mentionpair.left.get_postag(documents)
+    
+    if any(tag.startswith("NNP") for tag in right_pos):
+        if any(tag.startswith("NNP") for tag in left_pos):
+            return "MENTION_LEVEL=NNP|NNP"
+        elif any(tag.startswith("PR") for tag in left_pos):
+            return "MENTION_LEVEL=NNP|PRP"
+        elif any(tag.startswith('NN') for tag in left_pos):
+            return "MENTION_LEVEL=NNP|NN"
+        else:
+            return "MENTION_LEVEL=NNP|NA"
+    elif any(tag.startswith("PR") for tag in right_pos):
+        if any(tag.startswith("NNP") for tag in left_pos):
+            return "MENTION_LEVEL=PRP|NNP"
+        elif any(tag.startswith("PR") for tag in left_pos):
+            return "MENTION_LEVEL=PRP|PRP"
+        elif any(tag.startswith('NN') for tag in left_pos):
+            return "MENTION_LEVEL=PRP|NN"
+        else:
+            return "MENTION_LEVEL=PRP|NA"
+    elif any(tag.startswith('NN') for tag in right_pos):
+        if any(tag.startswith("NNP") for tag in left_pos):
+            return "MENTION_LEVEL=NN|NNP"
+        elif any(tag.startswith("PR") for tag in left_pos):
+            return "MENTION_LEVEL=NN|PRP"
+        elif any(tag.startswith('NN') for tag in left_pos):
+            return "MENTION_LEVEL=NN|NN"
+        else:
+            return "MENTION_LEVEL=NN|NA"
+    else:
+        if any(tag.startswith("NNP") for tag in left_pos):
+            return "MENTION_LEVEL=NA|NNP"
+        elif any(tag.startswith("PR") for tag in left_pos):
+            return "MENTION_LEVEL=NA|PRP"
+        elif any(tag.startswith('NN') for tag in left_pos):
+            return "MENTION_LEVEL=NA|NN"
+        else:
+            return "MENTION_LEVEL=NA|NA"
+
 
 def combo_words(mentionpair):
     """combo of mentions strings"""
@@ -249,7 +288,7 @@ def syntactic_pt(mentionpair):
     """
     -> number of common sub-trees of Path-enclosed Tree
     """
-    pass
+    
 
 def lca_type(mentionpair):
     """combination of left&right and LCA==(NP|PP|VP)"""

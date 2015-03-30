@@ -17,6 +17,7 @@ entity_token_dist
 #entity_verbal
 combo_type
 combo_words
+combo_mention_level
 netype_plus_right_overlap
 netype_plus_left_overlap
 lca_type

@@ -56,17 +56,61 @@ class Mention(object):
         Get the POS tags for this mention
         :param document: preloaded resources
         """
-        postagged_tokens = documents[self.filename].tagged_sents[self.sent_index]
+        postagged_tokens = documents[self.filename].tagged_sents[self.sent_index].split()
         postags = [postagged_tokens[i].split('_')[-1] for i in self.indices]
         return postags
+        
+    def get_previous_token(self, documents):
+        """
+        Get the previous token in the sentence
+        :param documents: preloaded resources
+        """
+        if self.indices[0]==0:
+            return "None"
+        else:
+            postagged_tokens = documents[self.filename].tagged_sents[self.sent_index].split()
+            return postagged_tokens[self.indices[0]-1].split('_')[0]
+
+    def get_next_token(self, documents):
+        """
+        Get the next token in the sentence
+        :param documents: preloaded resources
+        """
+        postagged_tokens = documents[self.filename].tagged_sents[self.sent_index].split()
+        if self.indices[-1]==len(postagged_tokens)-1:
+            return "None"
+        else:            
+            return postagged_tokens[self.indices[-1]+1].split('_')[0]
+
+    def get_previous_pos(self, documents):
+        """
+        Get the POS tag of the previous token in the sentence
+        :param documents: preloaded resources
+        """
+        if self.indices[0]==0:
+            return "0"
+        else:
+            postagged_tokens = documents[self.filename].tagged_sents[self.sent_index].split()
+            return postagged_tokens[self.indices[0]-1].split('_')[1]
+
+    def get_next_pos(self, documents):
+        """
+        Get the POS tag of the next token in the sentence
+        :param documents: preloaded resources
+        """
+        postagged_tokens = documents[self.filename].tagged_sents[self.sent_index].split()
+        if self.indices[-1]==len(postagged_tokens)-1:
+            return "0"
+        else:            
+            return postagged_tokens[self.indices[-1]+1].split('_')[1]
 
     def get_sentence_tokens(self, documents):
         '''
         Get all the tokens of the sentence where the mention occurrs
         :param documents: preloaded resources
         '''
-        postagged_tokens = documents[self.filename].tagged_sents[self.sent_index]
-        return ['_'.join(token.split('_')[:-1]) for token in postagged_tokens.split()]
+        postagged_tokens = documents[self.filename].tagged_sents[self.sent_index].split()
+        return ['_'.join(token.split('_')[:-1]) for token in postagged_tokens]
 
     def get_tree_dominator(self, documents):
         """
@@ -135,7 +179,21 @@ class MentionPair(object):
         left = self.left.get_dep_subtree(documents)
         right = self.right.get_dep_subtree(documents)
         return left.lca(right)
+        
+    def between_sequence(self,documents):
+        """ get tagged sentence fragment between two mention """
+        postagged_tokens = documents[self.filename].tagged_sents[self.antecedent.sent_index].split()
+        return postagged_tokens[self.left.indices[-1]+1:self.right.indices[0]]
 
+    def between_tokens(self,documents):
+        """ get tokens between two mention """
+        for postagged_token in self.between_sequence(documents):
+            yield postagged_token.split('_')[0]
+            
+    def between_tags(self,documents):
+        """ get POS tags between two mention """
+        for postagged_token in self.between_sequence(documents):
+            yield tagged_token.split('_')[1]
 
 if __name__ == '__main__':
     import doctest

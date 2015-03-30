@@ -152,13 +152,13 @@ class DepTree(object):
             parent, child = line[line.find('(') + 1: -1].split(', ')
             if parent not in leaves:
                 _parts = parent.split('-')
-                parent_token = '-'.join(_parts[:-1])
+                parent_token = '-'.join(_parts[:-1]).strip()
                 parent_index = _parts[-1]
                 parent_node = cls(parent_token, index=int(parent_index))
                 leaves[parent] = parent_node
             if child not in leaves:
                 _parts = child.split('-')
-                child_token = '-'.join(_parts[:-1])
+                child_token = '-'.join(_parts[:-1]).strip()
                 child_index = _parts[-1]
                 child_node = cls(child_token, index=int(child_index))
                 leaves[child] = child_node

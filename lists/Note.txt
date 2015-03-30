@@ -1,0 +1,32 @@
+social.txt
+
+Annotation guideline - PER-SOC
++work
+http://www.oxfordlearnersdictionaries.com/topic/office_life
+http://www.oxfordlearnersdictionaries.com/topic/job_titles
+http://www.oxfordlearnersdictionaries.com/topic/business_people
+http://www.oxfordlearnersdictionaries.com/topic/pay_and_conditions_at_work
++family
+http://www.oxfordlearnersdictionaries.com/topic/relations
+other
+http://www.oxfordlearnersdictionaries.com/topic/friends
+____________________________________________
+
+employment.txt
+
+Annotation guideline - EMP-ORG
+http://www.oxfordlearnersdictionaries.com/topic/business_people
+http://www.oxfordlearnersdictionaries.com/topic/job_titles
+http://www.formsofaddress.info/former.html
+
+http://www.oxfordlearnersdictionaries.com/topic/professions
+____________________________________________
+
+ideology.txt
+
+http://www.oxfordlearnersdictionaries.com/topic/religious_people
+____________________________________________
+
+GPE.txt
+
+From project 1

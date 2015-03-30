@@ -103,11 +103,11 @@ def kernel_entity(x, y):
 
 def main():
     h = "USAGE: \
-         ./kernels.py --train data/coref-trainset.gold \
-                   --test data/coref-devset.notag \
-                   --gold data/coref-devset.gold \
+         ./kernels.py --train data/rel-trainset.gold \
+                   --test data/rel-devset.raw \
+                   --gold data/rel-devset.gold \
                    --feature feature.txt \
-                   --task MyDummyExperiment"
+                   --task DummyExperiment"
     if len(sys.argv) == 1:
         print h
         exit()

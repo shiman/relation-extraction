@@ -124,15 +124,14 @@ def location_features(mentionpair):
            str(mentionpair.left.sent_index == mentionpair.right.sent_index)
 
 
-def between_words(mentionpair):
+def _get_between_words(mentionpair):
     if not (mentionpair.left.sent_index == mentionpair.right.sent_index):
-        return "BETWEEN_WORD=NA"
+        return ["NA"]
     left_index = mentionpair.left.indices[-1] + 1
     right_index = mentionpair.right.indices[0]
     sentence_tokens = mentionpair.left.get_sentence_tokens(documents)
     btw = sentence_tokens[left_index: right_index]
-    return "BETWEEN_WORD={} BTW_NUM={}". \
-        format('_'.join(btw), len(btw))
+    return btw
 
 def left_words(mentionpair):
     return "LEFT={}".format(mentionpair.left.string)
@@ -158,11 +157,51 @@ def combo_type(mentionpair):
     return "TYPE_COMBO={}|{}".format(mentionpair.left.netype,
                                      mentionpair.right.netype)
 
+def first_between(mentionpair):
+    between = _get_between_words(mentionpair)
+    if len(between)==0:
+        return "FIRST_BETWEEN=NA"
+    if len(between)==1:
+        return "FIRST_BETWEEN=ONLY_{}".format(between[0])
+    return "FIRST_BETWEEN={}".format(between[0])
+
+def last_between(mentionpair):
+    between = _get_between_words(mentionpair)
+    if len(between)==0:
+        return "LAST_BETWEEN=NA"
+    if len(between)==1:
+        return "LAST_BETWEEN=ONLY_{}".format(between[0])
+    return "LAST_BETWEEN={}".format(between[-1])
+
+def other_between(mentionpair):
+    between = _get_between_words(mentionpair)
+    if len(between)>2:
+        return "OTHER_BETWEEN={}".format('_'.join(between[0:-1]))
+
+def _right_is_subset_left(mentionpair):
+    right_string = set(mentionpair.right.string.lower().split('_'))
+    left_string = set(mentionpair.left.string.lower().split('_'))
+    return right_string.issubset(left_string)
+
+def _left_is_subset_right(mentionpair):
+    right_string = set(mentionpair.right.string.lower().split('_'))
+    left_string = set(mentionpair.left.string.lower().split('_'))
+    return left_string.issubset(right_string)
+
+def netype_plus_right_overlap(mentionpair):
+    return combo_type(mentionpair)+"_"+str(_right_is_subset_left(mentionpair))
+
+def netype_plus_left_overlap(mentionpair):
+    return combo_type(mentionpair)+"_"+str(_left_is_subset_right(mentionpair))
+
 #TODO
 def combo_mention_level(mentionpair):
     """combination of mention levels"""
     pass
 
+def combo_words(mentionpair):
+    """combo of mentions strings"""
+    return "WORD_COMBO={}|{}".format(mentionpair.left.string, mentionpair.right.string)
 
 #Reference:
 #https://www.ldc.upenn.edu/sites/www.ldc.upenn.edu/files/english-rdc-v4.3.2.PDF
@@ -203,6 +242,7 @@ def entity_verbal(mentionpair):
 
 
 # FEATURES - KERNEL - TREE - SYNTACTIC
+
 
 
 def syntactic_pt(mentionpair):
@@ -271,7 +311,7 @@ def dependent_and_netype(mentionpair):
 def _dep_surrouding(mention):
     """combination of dependent word and head word"""
     tree = mention.get_dep_subtree(documents)
-    dep = ' '.join([x.token for x in tree.children])
+    dep = '_'.join([x.token for x in tree.children])
     if tree.parent:
         head = tree.parent.token
     else:

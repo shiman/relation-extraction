@@ -130,7 +130,9 @@ class Mention(object):
         sentence = documents[self.filename].dep_sents[self.sent_index]
         start = sentence.get(self.indices[0])
         end = sentence.get(self.indices[-1])
-        return start.lca(end)
+        lca = start.lca(end)
+        lca.netypes = self.netype
+        return lca
 
     def __str__(self):
         return "sentence_index: %d\ntoken_indices: %s\nNE_type: %s\nstr: %s" % \
@@ -178,7 +180,9 @@ class MentionPair(object):
     def lca(self, documents):
         left = self.left.get_dep_subtree(documents)
         right = self.right.get_dep_subtree(documents)
-        return left.lca(right)
+        tree = left.lca(right)
+        tree.netypes = (self.left.netype, self.right.netype)
+        return tree
         
     def between_sequence(self,documents):
         """ get tagged sentence fragment between two mention """

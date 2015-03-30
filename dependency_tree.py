@@ -37,6 +37,7 @@ class DepTree(object):
         self._children = list()
         self._parent = None
         self._index = index
+        self.features = None
 
     def is_root(self):
         return self._parent is None

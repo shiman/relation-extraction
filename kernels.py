@@ -142,19 +142,18 @@ def main():
     classifier = svm.SVC(kernel='linear')
     classifier.fit(X_train, y_train)
     
-    devset = 'data/rel-devset.gold'
-    feature_file_dev = args.out_folder+'/feature.dev'
-    kernel_features(devset, args.feature_config, kernel_name,
-                    feature_file_dev)
-    X_dev = convert_features(load_features(feature_file_dev))
-    y_dev = load_labels(devset)
+    feature_file_test = args.out_folder+'/feature.test'
+    kernel_features(args.testset, args.feature_config, kernel_name,
+                    feature_file_test)
+    X_test = convert_features(load_features(feature_file_test))
+    y_test = load_labels(args.testgold)
     start_decode = time()
-    predicted = classifier.predict(X_dev)
+    predicted = classifier.predict(X_test)
     # http://scikit-learn.org/stable/auto_examples/classification/plot_digits_classification.html
     # example-classification-plot
     # digits-classification-py
     start_eval = time()
-    precision, recall, f = evaluate(y_dev, predicted)
+    precision, recall, f = evaluate(y_test, predicted)
     time_consumption = "Training: %.2f sec\nDecoding: %.2f sec" % \
                        ((start_decode - start_train),
                         (start_eval - start_decode))
@@ -162,12 +161,12 @@ def main():
                  ((precision * 100), (recall * 100), (f * 100))
     # print("Classification report for classifier %s:\n%s\n"
     #       % (classifier, metrics.classification_report
-    #          (y_dev, predicted)))
+    #          (y_test, predicted)))
 
     # print("Confusion matrix:\n%s" % metrics.
-    #       confusion_matrix(y_dev, predicted, y_dev))
+    #       confusion_matrix(y_test, predicted))
     with open(os.path.join(args.out_folder, 'hype'), 'w') as hypotheses:
-        for guess, gold in zip(predicted, y_dev):
+        for guess, gold in zip(predicted, y_test):
             if guess != gold:
                 hypotheses.write(gold + '   --------> ' + guess+'\n')
             else:

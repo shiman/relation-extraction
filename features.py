@@ -4,6 +4,7 @@
 from document import *
 from util import *
 import re
+import json
 
 # ######### RESOURCES ##########
 documents = load_documents()
@@ -53,7 +54,7 @@ def entity_type_e2(mentionpair):
     return "type_e2=" + mentionpair.right.netype
 
 
-def normalize_pos(pos):
+def _normalize_pos(pos):
     """ -> normalize POS tag of entity mention """
     if pos[0] in 'NP':
         return pos
@@ -66,16 +67,16 @@ def normalize_pos(pos):
 def entity_pos_e1(mentionpair):
     """ -> normalized POS tag of left entity mention """
     pos_e1 = mentionpair.left.get_postag(documents)[-1]
-    return "pos_e1=" + normalize_pos(pos_e1) 
+    return "pos_e1=" + _normalize_pos(pos_e1) 
 
 
 def entity_pos_e2(mentionpair):
     """ -> normalized POS tag of right entity mention """
     pos_e2 = mentionpair.right.get_postag(documents)[-1]
-    return "pos_e2=" + normalize_pos(pos_e2)
+    return "pos_e2=" + _normalize_pos(pos_e2)
 
 
-def normalize_neighbor_pos(pos):
+def _normalize_neighbor_pos(pos):
     """ normalize POS tag of neighbor token """
     if pos.isalpha():
         if pos=='POS':
@@ -96,13 +97,13 @@ def normalize_neighbor_pos(pos):
 def entity_npos_e1(mentionpair):
     """ -> normalized POS tag of left entity mention's next token """
     npos_e1 = mentionpair.left.get_next_pos(documents)
-    return "npos_e1=" + normalize_neighbor_pos(npos_e1)
+    return "npos_e1=" + _normalize_neighbor_pos(npos_e1)
     
 
 def entity_ppos_e2(mentionpair):
     """ -> normalized POS tag of right entity mention's previous token """
     ppos_e2 = mentionpair.right.get_previous_pos(documents)
-    return "ppos_e2=" + normalize_neighbor_pos(ppos_e2)
+    return "ppos_e2=" + _normalize_neighbor_pos(ppos_e2)
     
 
 def entity_token_dist(mentionpair):
@@ -256,6 +257,17 @@ def entity_between_preposition(mentionpair):
                           (mentionpair.between_tags(documents)))
 
 
+def entity_between_preposition_loc(mentionpair):
+    """ check if there is a location preposition between two mentions """
+    prep_loc = {'at','on','in'}
+    temp = False
+    for token in mentionpair.between_tokens(documents):
+        if token in prep_loc:
+            temp = True
+            break
+    return "prep_loc=" + str(temp)
+
+
 def entity_premod(mentionpair):
     """ check if there is a PreMod relation between two mentions """
     if entity_title_e1(mentionpair)=='title_e1=True' and \
@@ -278,6 +290,161 @@ def entity_verbal(mentionpair):
                     mentionpair.between_tags(documents))
     return "formulaic=" + str(bool(re.search\
                                    (r'VB .*IN',temp)))
+
+
+social = dict()
+for line in read_lines('lists/social.txt'):
+    tokens = line.split()
+    social[tokens[0]] = tokens[1:]
+
+def _social_status(mention):
+    """ check if mention belong to any social relations """
+    temp = 'NONE'
+    for k in social:
+        for v in social[k]:
+            if v in mention:
+                temp = k
+                break
+        if temp!='NONE':
+            break
+    return temp 
+
+def entity_social(mentionpair):
+    """ look for potential PER.SOC relations """
+    temp = 'NONE'
+    if mentionpair.left.netype=='PER' and \
+       mentionpair.right.netype=='PER':
+        if _social_status(mentionpair.left.string)!='NONE':
+            temp = _social_status(mentionpair.left.string)
+        elif _social_status(mentionpair.right.string)!='NONE':
+            temp = _social_status(mentionpair.right.string)
+    return "social=" + temp
+
+# json format lists
+def _load_list(list_file):
+    """ load the external name list into memory """
+    with open(list_file, 'r') as f:
+        words = set(json.load(f))
+        return words
+
+def _belong(mention,list_file):
+    """ check if mention belong to list """
+    temp = False
+    for w in _load_list(list_file):
+        if w in mention.lower():
+            temp = True
+            break
+    return temp
+            
+def entity_geo(mentionpair):
+    """ check if mentions are geographical places """
+    geo_e1,geo_e2 = False, False
+    if _belong(mentionpair.left.string,'lists/GPE.txt'):
+        geo_e1 = True
+    if _belong(mentionpair.right.string,'lists/GPE.txt'):
+        geo_e2 = True
+    return "geo=" + str(geo_e1) + '_' + str(geo_e2)
+
+def entity_geo_e1(mentionpair):
+    """ check if left mention is geographical place """
+    geo_e1 = False
+    if _belong(mentionpair.left.string,'lists/GPE.txt'):
+        geo_e1 = True
+    return "geo_e1=" + str(geo_e1)
+
+def entity_geo_e2(mentionpair):
+    """ check if right mention is geographical place """
+    geo_e2 = False
+    if _belong(mentionpair.right.string,'lists/GPE.txt'):
+        geo_e2 = True
+    return "geo_e2=" + str(geo_e2)
+
+employment = dict()
+for line in read_lines('lists/employment.txt'):
+    tokens = line.split()
+    employment[tokens[0]] = tokens[1:]
+
+def _employment_status(mention):
+    """ check if mention belong to any employment relations """
+    temp = 'NONE'
+    for k in employment:
+        for v in employment[k]:
+            if v in mention.lower():
+                temp = k
+                break
+        if temp!='NONE':
+            break
+    return temp
+
+def entity_employment_e1(mentionpair):
+    """ look for potential PER.SOC relations """
+    temp = 'NONE'
+    if mentionpair.left.netype=='PER':
+        if _employment_status(mentionpair.left.string)!='NONE':
+            temp = _employment_status(mentionpair.left.string)
+    return "employ_e1=" + temp
+
+def entity_employment_e2(mentionpair):
+    """ look for potential PER.SOC relations """
+    temp = 'NONE'
+    if mentionpair.right.netype=='PER':
+        if _employment_status(mentionpair.right.string)!='NONE':
+            temp = _employment_status(mentionpair.right.string)
+    return "employ_e2=" + temp
+
+ideology = list()
+for line in read_lines('lists/ideology.txt'):
+    tokens = line.split()
+    ideology.extend(tokens)
+
+def _ideology_status(mention):
+    """ check if mention belong to any ideology relations """
+    temp = 'NONE'
+    for token in ideology:
+        if token in mention:
+            temp = 'IDEO'
+            break
+    return temp
+
+def entity_ideology_e1(mentionpair):
+    """ look for potential ideology relations """
+    temp = 'NONE'
+    token_dist = mentionpair.right.indices[0] - \
+                 mentionpair.left.indices[-1]
+    if token_dist<=3:
+        temp = _ideology_status(mentionpair.left.string)
+    return "ideo_e1=" + temp
+
+def entity_ideology_e2(mentionpair):
+    """ look for potential ideology relations """
+    temp = 'NONE'
+    token_dist = mentionpair.right.indices[0] - \
+                 mentionpair.left.indices[-1]
+    if token_dist<=3:
+        temp = _ideology_status(mentionpair.right.string)
+    return "ideo_e2=" + temp
+
+part_whole = list()
+for line in read_lines('lists/part-whole.txt'):
+    tokens = line.split()
+    part_whole.extend(tokens)
+
+def _part_whole_status(mention):
+    """ check if mention belong to any part-whole relations """
+    temp = 'NONE'
+    for token in part_whole:
+        if token in mention.lower():
+            temp = 'PTWL'
+            break
+    return temp
+
+def entity_part_whole_e1(mentionpair):
+    """ look for potential part-whole relations """
+    return "ptwl_e1=" + _part_whole_status(mentionpair.left.string)
+
+def entity_part_whole_e2(mentionpair):
+    """ look for potential part-whole relations """
+    return "ptwl_e2=" + _part_whole_status(mentionpair.right.string)
 
 
 # FEATURES - KERNEL - TREE - SYNTACTIC

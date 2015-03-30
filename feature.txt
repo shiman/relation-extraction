@@ -1,7 +1,7 @@
 # between_words
 #entity_title_e1
-#entity_title_e2
-#entity_alpha_e1
+entity_title_e2
+entity_alpha_e1
 #entity_alpha_e2
 entity_type_e1
 entity_type_e2
@@ -12,9 +12,20 @@ entity_ppos_e2
 entity_token_dist
 #entity_between_possessive
 #entity_between_preposition
-#entity_premod
-#entity_formulaic
+entity_premod
+entity_formulaic
 #entity_verbal
+entity_social
+entity_between_preposition_loc
+entity_geo
+#entity_geo_e1
+entity_geo_e2
+entity_employment_e1
+entity_employment_e2
+entity_ideology_e1
+entity_ideology_e2
+entity_part_whole_e1
+entity_part_whole_e2
 combo_type
 combo_words
 netype_plus_right_overlap

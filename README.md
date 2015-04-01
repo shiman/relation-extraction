@@ -24,8 +24,17 @@ With the potential relation mention pairs provided, classify them into the corre
 (On tiara.cs.brandeis.edu)
 
 Training: 286.60 sec
+
 Decoding: 221.36 sec
 
-Precision: 61.56
-Recall: 34.74
-F1: 44.42
+P: 61.56 R: 34.74 F: 44.42
+
+## Usage
+
+    python pipeline.py --train data/rel-train.gold \
+                       --test data/rel-test.raw \
+                       --gold data/rel-test.gold \
+                       --features feature.txt \
+                       --task best_record
+
+The pipeline will train on the `train` file, with the feature functions you specified with `features` argument, and test against the `test` file and evaluate its performance. All the results will be saved under the `task` folder.
